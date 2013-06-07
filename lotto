@@ -1,0 +1,65 @@
+#!/bin/env perl
+
+use strict;
+use warnings;
+use 5.010;
+
+my $config = parse_config();
+my $type = shift // 'lotto';
+unless (exists $config->{$type}) {
+  unshift @ARGV, $type;
+  $type = 'lotto';
+}
+
+my $count;
+if (@ARGV) {
+  if ($ARGV[0] =~ /^\d+$/) {
+    $count = $ARGV[0];
+  } else {
+    die "$ARGV[0] doesn't look like a positive integer\n";
+  }
+} else {
+  $count = 1;
+}
+
+for (1 .. $count) {
+  local $" = ', ';
+  my @nums = lotto($config->{$type});
+  say join ' : ', map { "@$_" } @nums;
+}
+
+sub lotto {
+  my $lotto = shift;
+
+  my @nums;
+  foreach my $set (@$lotto) {
+    my %tries;
+    while (keys %tries < $set->{count}) {
+      $tries{(int rand $set->{limit}) + 1}++;
+    }
+    push @nums, [ sort { $a <=> $b} keys %tries ];
+  }
+
+  return @nums;
+}
+
+sub parse_config {
+  my $config;
+
+  while (<DATA>) {
+    chomp;
+    my @conf = split /:/;
+    my $key = shift @conf;
+    foreach my $def (@conf) {
+      my ($count, $limit) = split /x/, $def;
+      push @{$config->{$key}}, { limit => $limit, count => $count };
+    }
+  }
+
+  return $config;
+}
+
+__END__
+euro:5x50:2x11
+lotto:6x49
+thunder:5x39:1x14
