@@ -5,21 +5,27 @@ use warnings;
 use 5.010;
 
 my $config = parse_config();
-my $type = shift // 'lotto';
-unless (exists $config->{$type}) {
-  unshift @ARGV, $type;
-  $type = 'lotto';
+
+my ($type, $count) = qw[lotto 1];
+
+my @errs;
+if (@ARGV == 2) {
+  $type = shift;
+  if (! exists $config->{$type}) {
+    push @errs, qq["$type" is not a recognised type of lottery];
+  }
 }
 
-my $count;
-if (@ARGV) {
-  if ($ARGV[0] =~ /^\d+$/) {
-    $count = $ARGV[0];
-  } else {
-    die "$ARGV[0] doesn't look like a positive integer\n";
+if (@ARGV == 1) {
+  $count = shift;
+  if ($count !~ /^\d+$/) {
+    push @errs, qq["$count" doesn't look like a positive integer];
   }
-} else {
-  $count = 1;
+}
+
+if (@ARGV || @errs) {
+  push @errs, 'Usage: lotto [' . join('|', keys %$config) . "] [count]\n";
+  die join "\n", @errs;
 }
 
 for (1 .. $count) {
