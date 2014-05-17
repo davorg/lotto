@@ -8,8 +8,11 @@ require Exporter;
 our @ISA = qw[Exporter];
 our @EXPORT = qw[lotto parse_config parse_args];
 
+our $config;
+
 sub lotto {
-  my $lotto = shift;
+  my $type = shift;
+  my $lotto = $config->{$type};
 
   my @nums;
   foreach my $set (@$lotto) {
@@ -24,8 +27,6 @@ sub lotto {
 }
 
 sub parse_config {
-  my $config;
-
   while (<DATA>) {
     chomp;
     my @conf = split /:/;
@@ -35,12 +36,10 @@ sub parse_config {
       push @{$config->{$key}}, { limit => $limit, count => $count };
     }
   }
-
-  return $config;
 }
 
 sub parse_args {
-  my $config = shift;
+  parse_config() unless keys %$config;
   my ($type, $count) = qw[lotto 1];
   my @errs;
 
@@ -52,9 +51,13 @@ sub parse_args {
   }
 
   if (@_ == 1) {
-    $count = shift;
-    if ($count !~ /^\d+$/) {
-      push @errs, qq["$count" doesn't look like a positive integer];
+    if ($_[0] =~ /^\d+$/) {
+      $count = shift;
+    } elsif (exists $config->{$_[0]}) {
+      $type = shift;
+    } else {
+      push @errs, qq["$_[0]" doesn't look like a positive integer or a ] .
+                  qq[type of lottery];
     }
 }
 

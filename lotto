@@ -8,12 +8,10 @@ use FindBin '$Bin';
 use lib $Bin;
 use Lotto;
 
-my $config = parse_config();
-
-my ($type, $count) = parse_args($config, @ARGV);
+my ($type, $count) = parse_args(@ARGV);
 
 for (1 .. $count) {
-  my @nums = lotto($config->{$type});
+  my @nums = lotto($type);
   local $" = ', ';
   say join ' : ', map { "@$_" } @nums;
 }
