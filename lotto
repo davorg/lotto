@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use 5.010;
 
+use FindBin '$Bin';
+use lib $Bin;
 use Lotto;
 
 my $config = parse_config();
