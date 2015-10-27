@@ -75,5 +75,5 @@ sub parse_args {
 
 __DATA__
 euro:5x50:2x11
-lotto:6x49
+lotto:6x59
 thunder:5x39:1x14
