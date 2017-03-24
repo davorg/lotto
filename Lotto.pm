@@ -44,7 +44,11 @@ sub parse_args {
   my @errs;
 
   if (@_ == 2) {
-    $type = shift;
+    ($type, $count) = (shift, shift);
+    ($type, $count) = ($count, $type) if $count =~ /\D/;
+    if ($count =~ /\D/) {
+      push @errs, "$count doesn't look like a positive integer";
+    }
     if (! exists $config->{$type}) {
       push @errs, qq["$type" is not a recognised type of lottery];
     }
