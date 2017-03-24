@@ -44,13 +44,21 @@ sub parse_args {
   my @errs;
 
   if (@_ == 2) {
-    ($type, $count) = (shift, shift);
-    ($type, $count) = ($count, $type) if $count =~ /\D/;
-    if ($count =~ /\D/) {
-      push @errs, "$count doesn't look like a positive integer";
+    ($count, $type)   = (undef, undef);
+    my ($first, $second) = (shift, shift);
+    for ($first, $second) {
+      if (/^\d+$/) {
+        $count = $_;
+      }
+      if (exists $config->{$_}) {
+        $type = $_;
+      }
     }
-    if (! exists $config->{$type}) {
-      push @errs, qq["$type" is not a recognised type of lottery];
+    unless (defined $count) {
+      push @errs, "Neither $first nor $second look like a positive integer";
+    }
+    unless (defined $type) {
+      push @errs, "Neither $first nor $second are a recognised type of lottery";
     }
   }
 
