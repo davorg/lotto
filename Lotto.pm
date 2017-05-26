@@ -43,6 +43,19 @@ sub parse_args {
   my ($type, $count) = qw[lotto 1];
   my @errs;
 
+  return ($type, $count) unless @_;
+
+  if (@_ == 1) {
+    if ($_[0] =~ /^\d+$/) {
+      $count = shift;
+    } elsif (exists $config->{$_[0]}) {
+      $type = shift;
+    } else {
+      push @errs, qq["$_[0]" doesn't look like a positive integer or a ] .
+                  qq[type of lottery];
+    }
+  }
+
   if (@_ == 2) {
     ($count, $type)   = (undef, undef);
     my ($first, $second) = (shift, shift);
@@ -61,17 +74,6 @@ sub parse_args {
       push @errs, "Neither $first nor $second are a recognised type of lottery";
     }
   }
-
-  if (@_ == 1) {
-    if ($_[0] =~ /^\d+$/) {
-      $count = shift;
-    } elsif (exists $config->{$_[0]}) {
-      $type = shift;
-    } else {
-      push @errs, qq["$_[0]" doesn't look like a positive integer or a ] .
-                  qq[type of lottery];
-    }
-}
 
   if (@_ || @errs) {
     push @errs, 'Usage: lotto [' .
