@@ -4,16 +4,28 @@ use strict;
 use warnings;
 use 5.010;
 
+use Moose;
+
+has type => (
+  isa => 'Str',
+  is  => 'ro',
+);
+
+has count => (
+  isa => 'Int',
+  is  => 'ro',
+);
+
 our $config;
 
 sub play {
   my $self = shift;
 
-  my $lotto = $config->{$self->{type}};
+  my $lotto = $config->{$self->type};
 
   my @results;
 
-  for (1 .. $self->{count}) {
+  for (1 .. $self->count) {
     my @nums;
     foreach my $set (@$lotto) {
       my %tries;
@@ -41,8 +53,17 @@ sub parse_config {
   }
 }
 
-sub new {
+around BUILDARGS => sub {
+  my $orig  = shift;
   my $class = shift;
+
+  if (@_ == 1 and ref $_[0] eq 'HASH') {
+    return $class->$orig(@_);
+  }
+
+  if (@_ == 4) {
+    return $class->$orig(@_);
+  }
 
   parse_config() unless keys %$config;
 
@@ -86,11 +107,11 @@ sub new {
     die join "\n", @errs;
   }
 
-  return bless {
+  return $class->$orig({
     type => $type,
     count => $count,
-  }, $class;
-}
+  });
+};
 
 1;
 
