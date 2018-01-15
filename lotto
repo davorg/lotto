@@ -8,10 +8,9 @@ use FindBin '$Bin';
 use lib $Bin;
 use Lotto;
 
-my ($type, $count) = parse_args(@ARGV);
+my $lotto = Lotto->new(@ARGV);
 
-for (1 .. $count) {
-  my @nums = lotto($type);
+for my $line ($lotto->play) {
   local $" = ', ';
-  say join ' : ', map { "@$_" } @nums;
+  say join ' : ', map { "@$_" } @$line;
 }

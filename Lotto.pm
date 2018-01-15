@@ -10,20 +10,27 @@ our @EXPORT = qw[lotto parse_config parse_args];
 
 our $config;
 
-sub lotto {
-  my $type = shift;
-  my $lotto = $config->{$type};
+sub play {
+  my $self = shift;
 
-  my @nums;
-  foreach my $set (@$lotto) {
-    my %tries;
-    while (keys %tries < $set->{count}) {
-      $tries{(int rand $set->{limit}) + 1}++;
+  my $lotto = $config->{$self->{type}};
+
+  my @results;
+
+  for (1 .. $self->{count}) {
+    my @nums;
+    foreach my $set (@$lotto) {
+      my %tries;
+      while (keys %tries < $set->{count}) {
+        $tries{(int rand $set->{limit}) + 1}++;
+      }
+      push @nums, [ sort { $a <=> $b} keys %tries ];
     }
-    push @nums, [ sort { $a <=> $b} keys %tries ];
+
+    push @results, \@nums;
   }
 
-  return @nums;
+  return @results;
 }
 
 sub parse_config {
@@ -38,12 +45,13 @@ sub parse_config {
   }
 }
 
-sub parse_args {
+sub new {
+  my $class = shift;
+
   parse_config() unless keys %$config;
+
   my ($type, $count) = qw[lotto 1];
   my @errs;
-
-  return ($type, $count) unless @_;
 
   if (@_ == 1) {
     if ($_[0] =~ /^\d+$/) {
@@ -82,7 +90,10 @@ sub parse_args {
     die join "\n", @errs;
   }
 
-  return ($type, $count);
+  return bless {
+    type => $type,
+    count => $count,
+  }, $class;
 }
 
 1;
