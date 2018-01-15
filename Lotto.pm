@@ -4,10 +4,6 @@ use strict;
 use warnings;
 use 5.010;
 
-require Exporter;
-our @ISA = qw[Exporter];
-our @EXPORT = qw[lotto parse_config parse_args];
-
 our $config;
 
 sub play {
