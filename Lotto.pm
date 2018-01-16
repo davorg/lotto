@@ -68,17 +68,22 @@ around BUILDARGS => sub {
 
   my $config = $class->config;
 
+  # Standard Moose call with hash ref. ->new({ ... })
+  # Just pass it on
   if (@_ == 1 and ref $_[0] eq 'HASH') {
     return $class->$orig(@_);
   }
 
+  # Standard Moose call with has. ->new( ... )
+  # Take a ref and pass it on
   if (@_ == 4) {
-    return $class->$orig(@_);
+    return $class->$orig({@_});
   }
 
   my ($type, $count) = qw[lotto 1];
   my @errs;
 
+  # Single arg will either be a lottery type string or an integer
   if (@_ == 1) {
     if ($_[0] =~ /^\d+$/) {
       $count = shift;
@@ -90,6 +95,7 @@ around BUILDARGS => sub {
     }
   }
 
+  # Two args should be both a lottery type string and an integer
   if (@_ == 2) {
     ($count, $type)   = (undef, undef);
     my ($first, $second) = (shift, shift);
@@ -107,6 +113,10 @@ around BUILDARGS => sub {
     unless (defined $type) {
       push @errs, "Neither $first nor $second are a recognised type of lottery";
     }
+  }
+
+  if (@_ > 2) {
+    die "Weird parameters to Lotto constructor: @_\n";
   }
 
   if (@_ || @errs) {
