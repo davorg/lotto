@@ -5,6 +5,29 @@ use warnings;
 use 5.010;
 
 use Moose;
+use MooseX::ClassAttribute;
+
+class_has config => (
+  isa => 'HashRef',
+  is => 'ro',
+  lazy_build => 1,
+);
+
+sub _build_config {
+  my $config;
+
+  while (<Lotto::DATA>) {
+    chomp;
+    my @conf = split /:/;
+    my $key = shift @conf;
+    foreach my $def (@conf) {
+      my ($count, $limit) = split /x/, $def;
+      push @{$config->{$key}}, { limit => $limit, count => $count };
+    }
+  }
+
+  return $config;
+}
 
 has type => (
   isa => 'Str',
@@ -16,12 +39,10 @@ has count => (
   is  => 'ro',
 );
 
-our $config;
-
 sub play {
   my $self = shift;
 
-  my $lotto = $config->{$self->type};
+  my $lotto = $self->config->{$self->type};
 
   my @results;
 
@@ -41,21 +62,11 @@ sub play {
   return @results;
 }
 
-sub parse_config {
-  while (<DATA>) {
-    chomp;
-    my @conf = split /:/;
-    my $key = shift @conf;
-    foreach my $def (@conf) {
-      my ($count, $limit) = split /x/, $def;
-      push @{$config->{$key}}, { limit => $limit, count => $count };
-    }
-  }
-}
-
 around BUILDARGS => sub {
   my $orig  = shift;
   my $class = shift;
+
+  my $config = $class->config;
 
   if (@_ == 1 and ref $_[0] eq 'HASH') {
     return $class->$orig(@_);
@@ -64,8 +75,6 @@ around BUILDARGS => sub {
   if (@_ == 4) {
     return $class->$orig(@_);
   }
-
-  parse_config() unless keys %$config;
 
   my ($type, $count) = qw[lotto 1];
   my @errs;
@@ -88,7 +97,7 @@ around BUILDARGS => sub {
       if (/^\d+$/) {
         $count = $_;
       }
-      if (exists $config->{$_}) {
+      if ($config->{$_}) {
         $type = $_;
       }
     }
@@ -102,7 +111,7 @@ around BUILDARGS => sub {
 
   if (@_ || @errs) {
     push @errs, 'Usage: lotto [' .
-      join('|', keys %$config) .
+      join('|', keys %{$class->config}) .
       "] [count]\n";
     die join "\n", @errs;
   }
