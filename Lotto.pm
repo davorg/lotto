@@ -74,7 +74,7 @@ around BUILDARGS => sub {
     return $class->$orig(@_);
   }
 
-  # Standard Moose call with has. ->new( ... )
+  # Standard Moose call with hash. ->new( ... )
   # Take a ref and pass it on
   if (@_ == 4) {
     return $class->$orig({@_});
