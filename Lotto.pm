@@ -59,6 +59,14 @@ sub play {
     push @results, \@nums;
   }
 
+
+  # TODO: Sort on the correct number of values.
+  @results = sort {
+    ($a->[0][0] <=> $b->[0][0]) or
+    ($a->[0][1] <=> $b->[0][1]) or
+    ($a->[0][2] <=> $b->[0][2])
+  } @results;
+
   return @results;
 }
 
