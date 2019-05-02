@@ -146,3 +146,4 @@ __DATA__
 euro:5x50:2x11
 lotto:6x59
 thunder:5x39:1x14
+life:5x47:1x10
