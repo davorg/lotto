@@ -116,10 +116,12 @@ around BUILDARGS => sub {
       }
     }
     unless (defined $count) {
-      push @errs, "Neither $first nor $second look like a positive integer";
+      push @errs,
+        "Neither '$first' nor '$second' look like a positive integer";
     }
     unless (defined $type) {
-      push @errs, "Neither $first nor $second are a recognised type of lottery";
+      push @errs,
+        "Neither '$first' nor '$second' are a recognised type of lottery";
     }
   }
 
@@ -129,7 +131,7 @@ around BUILDARGS => sub {
 
   if (@_ || @errs) {
     push @errs, 'Usage: lotto [' .
-      join('|', keys %{$class->config}) .
+      join('|', sort keys %{$class->config}) .
       "] [count]\n";
     die join "\n", @errs;
   }
