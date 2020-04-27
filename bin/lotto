@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use 5.010;
 
-use FindBin '$Bin';
-use lib "$Bin/../lib";
+use FindBin '$RealBin';
+use lib "$RealBin/../lib";
 use Lotto;
 
 my $lotto = Lotto->new(@ARGV);
