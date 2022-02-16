@@ -53,7 +53,8 @@ sub play {
       while (keys %tries < $set->{count}) {
         $tries{(int rand $set->{limit}) + 1}++;
       }
-      push @nums, [ sort { $a <=> $b} keys %tries ];
+      push @nums, [ map  { $_ = sprintf '%02d', $_ }
+                    sort { $a <=> $b} keys %tries ];
     }
 
     push @results, \@nums;
